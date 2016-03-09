@@ -53,23 +53,12 @@ object SortingnConcat {
     }
   } ensuring (res => res.size == l.size && time <= ? * l.size + ?)
 
-  /*def concat(l1: List, l2: LList) : LList = {
+  def concat(l1: List, l2: LList) : LList = {
     l1 match {
       case Cons(x, xs) => SCons(x, $(concat(xs, l2)))
       case Nil() => SNil()
     }
   } ensuring(res => time <= ?)
-
-  def secondMin(l: $[LList]) : BigInt = {
-    l.value match {
-      case SCons(x, xs) =>
-        xs.value match {
-          case SCons(y, ys) => y
-          case SNil() => x
-        }
-      case SNil() => BigInt(0)
-    }
-  } ensuring (_ => time <= ? * ssize(l) + ?)*/
 
   def kthMin(l: $[LList], k: BigInt): BigInt = {
     require(k >= 1)
@@ -80,5 +69,5 @@ object SortingnConcat {
           kthMin(xs, k - 1)
       case SNil() => BigInt(0)
     }
-  } ensuring (_ => time <= ? * k * ssize(l) + ? * k + ?)
+  } ensuring (_ => time <= ? * (k * ssize(l)) + ? * k + ?)
 }

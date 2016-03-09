@@ -26,7 +26,7 @@ class FarkasLemmaSolver(ctx: InferenceContext, program: Program) {
 
   //debug flags
   val verbose = true
-  val verifyModel = true
+  val verifyModel = false
   val dumpNLCtrsAsSMTLIB = false
   val dumpNLCtrs = false
   val debugNLCtrs = false
@@ -314,12 +314,7 @@ class FarkasLemmaSolver(ctx: InferenceContext, program: Program) {
         }
         val fullmodel = model ++ newassignments
         if (this.verifyModel) {
-          val formula = replace(fullmodel.map {
-            case (_, InfiniteIntegerLiteral(_)) =>
-              throw new IllegalStateException("Found an integer literal!!")
-            case (k, v) => (k.toVariable, v)
-          }.toMap, nlctrs)
-          println("Real formula: "+formula)
+          val formula = replace(fullmodel.map { case (k, v) => (k.toVariable, v)}.toMap, nlctrs)
           assert(evaluateRealFormula(formula))
         }
         (res, fullmodel)

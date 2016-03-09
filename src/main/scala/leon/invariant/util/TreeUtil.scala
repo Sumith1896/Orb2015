@@ -371,12 +371,10 @@ object PredicateUtil {
    */
   def hasInts(expr: Expr): Boolean = {
     var foundInt = false
-    simplePostTransform {
-      case e: Terminal if (e.getType == Int32Type || e.getType == IntegerType) => {
+    postTraversal {
+      case e: Terminal if (e.getType == Int32Type || e.getType == IntegerType) =>
         foundInt = true
-        e
-      }
-      case e => e
+      case _ =>
     }(expr)
     foundInt
   }

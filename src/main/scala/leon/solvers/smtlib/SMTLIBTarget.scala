@@ -311,7 +311,6 @@ trait SMTLIBTarget extends Interruptible {
   protected def declareVariable(id: Identifier): SSymbol = {
     variables.cachedB(id) {
       val s = id2sym(id)
-      //println("Declaring variable: "+id)
       val cmd = DeclareFun(s, List(), declareSort(id.getType))
       emit(cmd)
       s

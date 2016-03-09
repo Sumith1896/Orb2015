@@ -90,17 +90,17 @@ class RealToInt extends IntRealMap {
 /**
  * Maps integer literal and identifiers to real literal and identifiers
  */
-class IntToReal extends IntRealMap {
+/*class IntToReal extends IntRealMap {
 
   def mapLiteral(l: Literal[_]): Literal[_] = l match {
     case InfiniteIntegerLiteral(v) => FractionalLiteral(v.toInt, 1)
     case other => other
   }
 
-  /**
+  *//**
    * Here, we return fractional literals for integer-valued variables,
    * and leave to the client to handle them
-   */
+   *//*
   def unmapLiteral(l: Literal[_]): Literal[_] = l
 
   def mapIdentifier(v: Identifier): Identifier =
@@ -108,4 +108,4 @@ class IntToReal extends IntRealMap {
       if (IsTemplateIdentifier(v)) freshIdentifier(v.name, RealType)
       else FreshIdentifier(v.name, RealType, true)
     } else v
-}
+}*/

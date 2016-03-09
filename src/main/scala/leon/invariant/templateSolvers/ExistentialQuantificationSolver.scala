@@ -65,8 +65,7 @@ class ExistentialQuantificationSolver(ctx: InferenceContext, program: Program,
    * Solves the nonlinear Farkas' constraints
    */
   def solveConstraints(newctrs: Seq[Expr], oldModel: Model): (Option[Boolean], Model) = {
-    val intToReal = new IntToReal()
-    val newPart = intToReal.mapExpr(createAnd(newctrs))
+    val newPart = createAnd(newctrs)
     val newSize = atomNum(newPart)
     val currSize = atomNum(currentCtr)
     Stats.updateCounterStats((newSize + currSize), "NLsize", "disjuncts")
@@ -87,7 +86,7 @@ class ExistentialQuantificationSolver(ctx: InferenceContext, program: Program,
       case Some(true) =>
         currentCtr = combCtr
         //new model may not have mappings for all the template variables, hence, use the mappings from earlier models
-        (Some(true), completeWithRefModel(intToReal.unmapModel(newModel), oldModel))
+        (Some(true), completeWithRefModel(newModel, oldModel))
     }
   }
 }
