@@ -58,9 +58,7 @@ class InferenceContext(val initProgram: Program, val leonContext: LeonContext) {
 
   val inferProgram = {
     // convert nonlinearity to recursive functions
-    nlelim(if (usereals)
-      (new IntToRealProgram())(qMarksRemovedProg)
-    else qMarksRemovedProg)
+    nlelim(if (usereals) (new IntToRealProgram())(qMarksRemovedProg) else qMarksRemovedProg)
   }
 
   // other utilities

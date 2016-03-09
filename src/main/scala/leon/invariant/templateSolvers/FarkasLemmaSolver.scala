@@ -26,7 +26,7 @@ class FarkasLemmaSolver(ctx: InferenceContext, program: Program) {
 
   //debug flags
   val verbose = true
-  val verifyModel = false
+  val verifyModel = true
   val dumpNLCtrsAsSMTLIB = false
   val dumpNLCtrs = false
   val debugNLCtrs = false
@@ -180,13 +180,11 @@ class FarkasLemmaSolver(ctx: InferenceContext, program: Program) {
       //the final constraint is a conjunction of lambda constraints and disjunction of enabled and disabled parts
       if (disableAnts) And(createAnd(lambdaCtrs), disabledPart)
       else {
-        //And(And(lambdaCtrs), enabledPart)
         And(createAnd(lambdaCtrs), Or(enabledPart, disabledPart))
       }
     }
 
     val ctrs = if (disableAnts) {
-      //here conseqs are empty
       createCtrs(None)
     } else {
       val Seq(head, tail @ _*) = conseqs
@@ -316,10 +314,13 @@ class FarkasLemmaSolver(ctx: InferenceContext, program: Program) {
         }
         val fullmodel = model ++ newassignments
         if (this.verifyModel) {
-          //println("Fullmodel: "+fullmodel)
-          assert(evaluateRealFormula(replace(
-              fullmodel.map { case (k, v) => (k.toVariable, v) }.toMap,
-              nlctrs)))
+          val formula = replace(fullmodel.map {
+            case (_, InfiniteIntegerLiteral(_)) =>
+              throw new IllegalStateException("Found an integer literal!!")
+            case (k, v) => (k.toVariable, v)
+          }.toMap, nlctrs)
+          println("Real formula: "+formula)
+          assert(evaluateRealFormula(formula))
         }
         (res, fullmodel)
       case _ =>

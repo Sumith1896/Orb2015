@@ -340,14 +340,27 @@ object PredicateUtil {
    */
   def hasReals(expr: Expr): Boolean = {
     var foundReal = false
-    simplePostTransform {
-      case e => {
-        if (e.getType == RealType)
+    postTraversal {
+      case e if e.getType == RealType =>
           foundReal = true
-        e
-      }
+      case _ =>
     }(expr)
     foundReal
+  }
+
+  /**
+   * Checks if the expression has real valued sub-expressions.
+   */
+  def hasRealsOrTemplates(expr: Expr): Boolean = {
+    var found = false
+    postTraversal {
+      case Variable(id) if id.getType == RealType || TemplateIdFactory.IsTemplateIdentifier(id) =>
+        found = true
+      case e if e.getType == RealType =>
+        found = true
+      case _ =>
+    }(expr)
+    found
   }
 
   /**

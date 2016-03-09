@@ -311,6 +311,7 @@ trait SMTLIBTarget extends Interruptible {
   protected def declareVariable(id: Identifier): SSymbol = {
     variables.cachedB(id) {
       val s = id2sym(id)
+      //println("Declaring variable: "+id)
       val cmd = DeclareFun(s, List(), declareSort(id.getType))
       emit(cmd)
       s
@@ -758,7 +759,7 @@ trait SMTLIBTarget extends Interruptible {
 
       case (SNumeral(n), Some(RealType)) =>
         FractionalLiteral(n, 1)
-      
+
       case (FunctionApplication(SimpleSymbol(SSymbol("ite")), Seq(cond, thenn, elze)), t) =>
         IfExpr(
           fromSMT(cond, Some(BooleanType)),

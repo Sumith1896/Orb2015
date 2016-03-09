@@ -83,14 +83,14 @@ class CompositionalTimeBoundSolver(ctx: InferenceContext, prog: Program, rootFd:
 
         // construct the instantiated tpr bound and check if it monotonically decreases
         val Operator(Seq(_, tprFun), _) = tprTmpl
-        val tprFunInst = (new RealToInt()).mapRealToInt(
+        val tprFunInst = (new RealToInt()).mapExpr(
           replace(tprModel.map { case (k, v) => (k.toVariable -> v) }.toMap, tprFun))
         // TODO: this would fail on non-integers, handle these by approximating to the next bigger integer
 
         // Upper bound on time time <= recFun * tprFun + tprFun
         val (_, multFun) = MultFuncs.getMultFuncs(if (ctx.usereals) RealType else IntegerType)
         val Operator(Seq(_, recFun), _) = recTmpl
-        val recFunInst = (new RealToInt()).mapRealToInt(
+        val recFunInst = (new RealToInt()).mapExpr(
           replace(recModel.map { case (k, v) => (k.toVariable -> v) }.toMap, recFun))
 
         val timeUpperBound = ExpressionTransformer.normalizeMultiplication(
@@ -140,21 +140,6 @@ class CompositionalTimeBoundSolver(ctx: InferenceContext, prog: Program, rootFd:
         None
     }
   }
-
-  /*def combineMapsUsingConjunction(maps: List[Map[FunDef, Expr]], prog: Program) = {
-    val combMap = new OrderedMultiMap[FunDef, Expr]
-    maps.foreach {
-      _.foreach {
-        case (k, v) =>
-          val origFun = functionByName(k.id.name, prog).get
-          combMap.addBinding(origFun, v)
-      }
-    }
-    combMap.foldLeft(Map[FunDef, Expr]()) {
-      case (acc, (k, vs)) if vs.size == 1 => acc + (k -> vs(0))
-      case (acc, (k, vs)) => acc + (k -> And(vs.toSeq))
-    }
-  }*/
 
   def extractSeparateTemplates(funDef: FunDef): (Option[Expr], Option[Expr], Option[Expr], Seq[Expr]) = {
     if (!funDef.hasTemplate) (None, None, None, Seq[Expr]())

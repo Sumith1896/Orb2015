@@ -21,7 +21,7 @@ object TemplateIdFactory {
 
   def getTemplateIds : Set[Identifier] = ids
 
-  def freshIdentifier(name : String = "", idType: TypeTree = RealType) : Identifier = {
+  def freshIdentifier(name : String = "", idType: TypeTree = IntegerType) : Identifier = {
     val idname = if(name.isEmpty) "a?"
     			 else name + "?"
     val freshid = FreshIdentifier(idname, idType, true)
@@ -30,7 +30,7 @@ object TemplateIdFactory {
   }
 
   def copyIdentifier(id: Identifier) : Identifier = {
-    val freshid = FreshIdentifier(id.name, RealType, false)
+    val freshid = FreshIdentifier(id.name, IntegerType, false)
     ids += freshid
     freshid
   }

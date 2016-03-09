@@ -50,7 +50,7 @@ object LazinessEliminationPhase extends TransformationPhase {
   val dumpTypeCorrectProg = false
   val dumpProgWithPreAsserts = false
   val dumpProgWOInstSpecs = false
-  val dumpInstrumentedProgram = false
+  val dumpInstrumentedProgram = true
   val debugSolvers = false
   val skipStateVerification = false
   val skipResourceVerification = false
