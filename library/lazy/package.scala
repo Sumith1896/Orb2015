@@ -1,6 +1,7 @@
 /* Copyright 2009-2013 EPFL, Lausanne */
 
-package leon.lazyeval
+package leon
+package lazyeval
 
 import leon.annotation._
 import leon.lang._

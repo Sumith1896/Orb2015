@@ -1,5 +1,9 @@
-import leon.lang._
-import leon.collection._
+package listalgorithms
+
+import leon._
+import lang._
+import collection._
+
 object MergeSort {
 
   def merge[T](less: (T, T) => Boolean)(xs: List[T], ys: List[T]): List[T] = {

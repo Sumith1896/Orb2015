@@ -1,11 +1,12 @@
-package orb
+package withOrb
 
-import leon.lazyeval._
-import leon.lazyeval.$._
-import leon.lang._
-import leon.annotation._
-import leon.instrumentation._
-import leon.invariant._
+import leon._
+import lazyeval._
+import lazyeval.$._
+import lang._
+import annotation._
+import instrumentation._
+import invariant._
 
 /**
  * TODO Multiple instantiations of type parameters is not supported yet,
@@ -109,14 +110,15 @@ object BottomUpMergeSort {
       case _ =>
         constructMergeTree(pairs(l))
     }
-  } ensuring (res => res.size <= 1 && res.fullSize == l.fullSize &&
+  } ensuring {res =>
+    res.size <= 1 && res.fullSize == l.fullSize &&
     (res match {
       case LCons(il, LNil()) =>
         res.fullSize == ssize(il) // this is implied by the previous conditions
       case _ => true
     }) &&
     res.valid &&
-    time <= ? * l.size + ?)
+    time <= ? * l.size + ?}
 
   /**
    *  A function that merges two sorted streams of integers.
