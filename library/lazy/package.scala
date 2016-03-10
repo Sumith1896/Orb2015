@@ -18,9 +18,8 @@ object $ {
   implicit def eagerToLazy[T](x: T) = eager(x)
 
   /**
-   * accessing in and out states.
+   * For accessing in and out states.
    * Should be used only in ensuring.
-   * TODO: enforce this.
    */
   @extern
   def inState[T] : Set[$[T]] = sys.error("inState method is not executable!")
@@ -49,14 +48,6 @@ object $ {
 
   @inline
   implicit def toWithState[T](x: T) = new WithState(x)
-
-  /* @library
-  case class Mem[T](v: T) {
-    @extern
-    def isCached: Boolean = sys.error("not implemented!")
-  }
-  @inline
-  implicit def toMem[T](x: T) = new Mem(x)*/
 
   /**
    * annotations for monotonicity proofs.
