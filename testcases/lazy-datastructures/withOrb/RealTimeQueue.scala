@@ -1,12 +1,13 @@
-package orb
+package withOrb
 
-import leon.lazyeval._
-import leon.lazyeval.$._
-import leon.lang._
-import leon.annotation._
-import leon.collection._
-import leon.instrumentation._
-import leon.invariant._
+import leon._
+import lazyeval._
+import lazyeval.$._
+import lang._
+import annotation._
+import collection._
+import instrumentation._
+import invariant._
 
 object RealTimeQueue {
 
@@ -95,6 +96,18 @@ object RealTimeQueue {
         Queue(rotres, Nil(), rotres)
     }
   }
+
+  def empty[T] = {
+    val a: Stream[T] = SNil()
+    Queue(a, Nil(), a)
+  }
+
+  def head[T](q: Queue[T]): T = {
+    require(!q.isEmpty && q.valid)
+    q.f.value match {
+      case SCons(x, _) => x
+    }
+  } //ensuring (res => res.valid && time <= ?)
 
   def enqueue[T](x: T, q: Queue[T]): Queue[T] = {
     require(q.valid)

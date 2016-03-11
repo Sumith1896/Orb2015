@@ -149,17 +149,21 @@ object BottomUpMergeSort {
   /**
    * Converts a list of integers to a list of streams of integers
    */
+  val nilStream: IStream = SNil()
+
   @invisibleBody
   def IListToLList(l: IList): LList = {
     l match {
       case INil() => LNil()
       case ICons(x, xs) =>
-        LCons(SCons(x, SNil()), IListToLList(xs))
+        LCons(SCons(x, nilStream), IListToLList(xs))
     }
-  } ensuring (res => res.fullSize == l.size &&
-    res.size == l.size &&
-    res.valid &&
-    time <= ? * l.size + ?)
+  } ensuring { res =>
+    res.fullSize == l.size &&
+      res.size == l.size &&
+      res.valid &&
+      time <= ? * l.size + ?
+  }
 
   /**
    * Takes list of integers and returns a sorted stream of integers.
@@ -184,4 +188,15 @@ object BottomUpMergeSort {
       case SCons(x, rest) => x
     }
   } ensuring (res => time <= ? * l.size + ?)
+
+  def kthMin(l: IStream, k: BigInt): BigInt = {
+    require(k >= 0)
+    l match {
+      case SCons(x, xs) =>
+        if (k == 0) x
+        else
+          kthMin(xs.value, k - 1)
+      case SNil() => BigInt(0)
+    }
+  } //ensuring (_ => time <= ? * (k * ssize(l)) + ? * k + ?)
 }
