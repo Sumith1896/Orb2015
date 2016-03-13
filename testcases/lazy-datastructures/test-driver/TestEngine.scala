@@ -86,13 +86,16 @@ object TestEngine {
     var totalTime2 = 0L
     println(s"Testing amortized emphemeral behavior on $ops operations...")
     for(i <- 0 until ops) {
-      if (!amq.isEmpty) 
-        assert(RealTimeQueue.head(rtq) == amq.head)
+      if (!amq.isEmpty) {
+        val h1 = RealTimeQueue.head(rtq)
+        val h2 = amq.head
+        assert(h1 == h2, s"Eager head: $h2 Lazy head: $h1")
+      }
       rand.nextInt(2) match {
         case x if x == 0 => //enqueue
 //          /if(i%100000 == 0) println("Enqueue..")         
-          rtq = timed{ RealTimeQueue.enqueue(BigInt(x), rtq) }{totalTime1 += _}
-          amq = timed{ amq.enqueue(BigInt(x)) }{totalTime2 += _}
+          rtq = timed{ RealTimeQueue.enqueue(BigInt(i), rtq) }{totalTime1 += _}
+          amq = timed{ amq.enqueue(BigInt(i)) }{totalTime2 += _}
         case x if x == 1 => //dequeue
           if (!amq.isEmpty) {
             //if(i%100000 == 0) println("Dequeue..")         
@@ -103,7 +106,7 @@ object TestEngine {
     }
     println(s"Ephemeral Amortized Time - Eager: ${totalTime2/1000.0}s Lazy: ${totalTime1/1000.0}s") // this should be linear in length for both cases
     // now, test worst-case behavior (in persitent mode if necessary)
-    val length = (1 << 24) - 2 // a number of the form: 2^{n-2}
+    val length = (1 << 22) - 2 // a number of the form: 2^{n-2}
     // reset the queues
     rtq = RealTimeQueue.empty[BigInt]
     amq = AmortizedQueue.Queue(AmortizedQueue.Nil(), AmortizedQueue.Nil())
@@ -117,10 +120,51 @@ object TestEngine {
     timed { amq.dequeue } { t => println(s"Time to dequeue one element from Amortized Queue in the worst case: ${t/1000.0}s") }
     timed { RealTimeQueue.dequeue(rtq) } { t => println(s"Time to dequeue one element from RTQ in the worst case: ${t/1000.0}s") }    
   }
+  
+  def dequeTest() {
+    import withOrb._
+    import orb._
+    println("Running Deque test...")
+    val ops = 2000000
+    val rand = Random
+    // initialize to a queue with one element (required to satisfy preconditions of dequeue and front)
+    var rtd = RealTimeDeque.empty[BigInt]
+    var amq = AmortizedQueue.Queue(AmortizedQueue.Nil(), AmortizedQueue.Nil())    
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    println(s"Testing amortized emphemeral behavior on $ops operations...")
+    for (i <- 0 until ops) {
+      if (!amq.isEmpty) {
+        val h1 = RealTimeDeque.head(rtd)
+        val h2 = amq.head
+        assert(h1 == h2, s"Eager head: $h2 Lazy head: $h1")
+      }
+      rand.nextInt(3) match {
+        case x if x == 0 => //add to rear 
+          //println("Enqueue..")
+          rtd = timed { RealTimeDeque.snoc(BigInt(i), rtd) } { totalTime1 += _ }
+          amq = timed { amq.enqueue(BigInt(i)) } { totalTime2 += _ }
+        case x if x == 1 => // remove from front
+          if (!amq.isEmpty) {
+            //if(i%100000 == 0) 
+            //println("Dequeue..")
+            rtd = timed { RealTimeDeque.tail(rtd) } { totalTime1 += _ }
+            amq = timed { amq.dequeue } { totalTime2 += _ }
+          }
+        case x if x == 2 => // reverse
+          //if(i%100000 == 0) 
+          //println("reverse..")
+          rtd = timed { RealTimeDeque.reverse(rtd) } { totalTime1 += _ }
+          amq = timed { amq.reverse } { totalTime2 += _ }
+      }
+    }
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime2/1000.0}s Lazy: ${totalTime1/1000.0}s") // this should be linear in length for both cases  
+  }
 
   def main(args: Array[String]) {
     //concatTest()
     //buMsortTest()
-    rtqTest()
+    //rtqTest()
+    dequeTest
   }
 }

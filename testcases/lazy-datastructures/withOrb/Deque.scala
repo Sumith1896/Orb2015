@@ -1,13 +1,14 @@
 package orb
 
-import leon.lazyeval._
-import leon.lazyeval.$._
-import leon.lang._
-import leon.annotation._
-import leon.collection._
-import leon.instrumentation._
-import leon.math._
-import leon.invariant._
+import leon._
+import lazyeval._
+import lazyeval.$._
+import lang._
+import annotation._
+import collection._
+import instrumentation._
+import math._
+import invariant._
 
 /**
  * A constant time deque based on Okasaki's implementation: Fig.8.4 Pg. 112.
@@ -257,7 +258,7 @@ object RealTimeDeque {
     val nsf = force(force(q.sf, q.f, q.r, q.sr), q.f, q.r, q.sr) // forces q.sf twice
     val nsr = force(force(q.sr, q.r, q.f, nsf), q.r, q.f, nsf) // forces q.sr twice
     (nsf, nsr)
-  } ensuring(time <= ?)
+  } ensuring(_ => time <= ?)
   // the following properties are ensured, but need not be stated
   /*ensuring (res => {
     val nsf = res._1
@@ -274,6 +275,14 @@ object RealTimeDeque {
     Queue(nil, 0, nil, nil, 0, nil)
   }
 
+  def head[T](q: Queue[T]): T = {
+    require(!q.isEmpty && q.valid)
+    (q.f.value, q.r.value) match {
+      case (SCons(x, _), _) => x
+      case (_, SCons(x, _)) => x
+    }
+  }
+
   /**
    * Adding an element to the front of the list
    */
@@ -285,7 +294,7 @@ object RealTimeDeque {
     val nsr = force(q.sr, q.r, q.f, nsf)
     createQueue(nf, q.lenf + 1, nsf, q.r, q.lenr, nsr)
   } ensuring (res => res.valid && time <= ?)
-
+ 
   /**
    * Removing the element at the front, and returning the tail
    */
@@ -317,7 +326,12 @@ object RealTimeDeque {
   def reverse[T](q: Queue[T]): Queue[T] = {
     require(q.valid)
     Queue(q.r, q.lenr, q.sr, q.f, q.lenf, q.sf)
-  } ensuring(q.valid && time <= ?)
+  } ensuring(_ => q.valid && time <= ?)
+  
+  def snoc[T](x: T, q: Queue[T]): Queue[T] = {
+    require(q.valid)
+    reverse(cons(x, reverse(q)))
+  }
 
    // Properties of `firstUneval`. We use `fune` as a shorthand for `firstUneval`
   /**

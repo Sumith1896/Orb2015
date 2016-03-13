@@ -25,7 +25,7 @@ object AmortizedQueue {
     case Cons(x, xs) => reverseRec(xs, Cons(x, l2))
   }) ensuring (res => l1.size + l2.size == res.size && time <= ? * l1.size + ?)
 
-  def reverse(l: List): List = {
+  def listRev(l: List): List = {
     reverseRec(l, Nil())
   } ensuring (res => l.size == res.size && time <= ? * l.size + ?)
 
@@ -41,7 +41,7 @@ object AmortizedQueue {
   case class Queue(front: List, rear: List) {
     def qsize: BigInt = front.size + rear.size
 
-    def asList: List = concat(front, reverse(rear))
+    def asList: List = concat(front, listRev(rear))
 
     def isAmortized: Boolean = front.size >= rear.size
 
@@ -54,7 +54,7 @@ object AmortizedQueue {
       if (rear.size <= front.size)
         Queue(front, rear)
       else
-        Queue(concat(front, reverse(rear)), Nil())
+        Queue(concat(front, listRev(rear)), Nil())
     }
 
     def enqueue(elem: BigInt): Queue = ({
@@ -74,6 +74,10 @@ object AmortizedQueue {
       front match {
         case Cons(f, _) => f
       }
+    }
+    
+    def reverse: Queue = { // this lets the queue perform deque operation (but they no longer have efficient constant time amortized bounds)
+      amortizedQueue(rear, front)
     }
   }
 }
