@@ -158,13 +158,48 @@ object TestEngine {
           amq = timed { amq.reverse } { totalTime2 += _ }
       }
     }
-    println(s"Ephemeral Amortized Time - Eager: ${totalTime2/1000.0}s Lazy: ${totalTime1/1000.0}s") // this should be linear in length for both cases  
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime2/1000.0}s Lazy: ${totalTime1/1000.0}s")   
+  }
+  
+  def numericalRepTest() {
+    import withOrb._
+    import orb._
+    println("Running Numerical Representation test...")
+    val ops = 1000000    
+    // initialize to a queue with one element (required to satisfy preconditions of dequeue and front)
+    var bignum: BigNums.BigNum = BigNums.Nil()
+    var lazynum = LazyNumericalRep.emptyNum        
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    println(s"Testing amortized emphemeral behavior on $ops operations...")
+    for (i <- 0 until ops) {
+      //println("Inc..")
+      bignum = timed { BigNums.increment(bignum) } { totalTime1 += _ }
+      lazynum = timed { LazyNumericalRep.incAndPay(lazynum) } { totalTime2 += _ }
+      val d1 = BigNums.firstDigit(bignum)
+      val d2 = LazyNumericalRep.firstDigit(lazynum)      
+      assert(d1.toString == d2.toString, s"Eager head: $d1 Lazy head: $d2")
+    }
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime1/1000.0}s Lazy: ${totalTime2/1000.0}s") // this should be linear in length for both cases
+    // now, test worst-case behavior (in persitent mode if necessary)
+    val length = (1 << 22) - 1 // a number of the form: 2^{n-1}    
+    bignum = BigNums.Nil()
+    lazynum = LazyNumericalRep.emptyNum    
+    for (i <- 0 until length) {
+      bignum = BigNums.increment(bignum)
+      lazynum = LazyNumericalRep.incAndPay(lazynum)
+    }
+    println(s"Number of leading ones of bignum: ${BigNums.leadingOnes(bignum)}")
+    //dequeue 1 element from both queues
+    timed { BigNums.increment(bignum) } { t => println(s"Time for one eager increment in the worst case: ${t/1000.0}s") }
+    timed { LazyNumericalRep.incAndPay(lazynum) } { t => println(s"Time for one lazy increment in the worst case: ${t/1000.0}s") }
   }
 
   def main(args: Array[String]) {
     //concatTest()
     //buMsortTest()
     //rtqTest()
-    dequeTest
+    //dequeTest
+    //numericalRepTest
   }
 }

@@ -12,8 +12,7 @@ object FibMem {
   case class Cons(x: BigInt, tail: IList) extends IList
   case class Nil() extends IList
 
-  @memoize
-  def fibRec(n: BigInt): BigInt = {
+  def fibRec(n: BigInt): BigInt = memoize {
     require(n >= 0)
         if(n <= 2)
           BigInt(1)

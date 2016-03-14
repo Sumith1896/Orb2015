@@ -2,6 +2,7 @@ package withOrb
 
 import leon._
 import lazyeval._
+import lazyeval.Lazy._
 import lang._
 import annotation._
 import instrumentation._
@@ -17,9 +18,9 @@ object Concat {
       }
     } ensuring (_ >= 0)
   }
-  case class SCons[T](x: T, tail: $[LList[T]]) extends LList[T]
+  case class SCons[T](x: T, tail: Lazy[LList[T]]) extends LList[T]
   case class SNil[T]() extends LList[T]
-  def ssize[T](l: $[LList[T]]): BigInt = (l*).size
+  def ssize[T](l: Lazy[LList[T]]): BigInt = (l*).size
 
   def concat[T](l1: List[T], l2: List[T]): LList[T] = {
     l1 match {
@@ -28,7 +29,7 @@ object Concat {
     }
   } ensuring { _ => time <= ? }
 
-  def kthElem[T](l: $[LList[T]], k: BigInt): Option[T] = {
+  def kthElem[T](l: Lazy[LList[T]], k: BigInt): Option[T] = {
     require(k >= 0)
     l.value match {
       case SCons(x, xs) =>

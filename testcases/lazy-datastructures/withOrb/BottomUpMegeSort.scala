@@ -2,7 +2,6 @@ package withOrb
 
 import leon._
 import lazyeval._
-import lazyeval.$._
 import lang._
 import annotation._
 import instrumentation._
@@ -44,10 +43,10 @@ object BottomUpMergeSort {
       }
     } ensuring (_ >= 0)
   }
-  case class SCons(x: BigInt, tail: $[IStream]) extends IStream
+  case class SCons(x: BigInt, tail: Lazy[IStream]) extends IStream
   case class SNil() extends IStream
   @inline
-  def ssize(l: $[IStream]): BigInt = (l*).size
+  def ssize(l: Lazy[IStream]): BigInt = (l*).size
 
   /**
    * A list of suspensions
@@ -74,7 +73,7 @@ object BottomUpMergeSort {
       }
     } ensuring (_ >= 0)
   }
-  case class LCons(x: $[IStream], tail: LList) extends LList
+  case class LCons(x: Lazy[IStream], tail: LList) extends LList
   case class LNil() extends LList
 
   /**
@@ -127,7 +126,7 @@ object BottomUpMergeSort {
    */
   @invisibleBody
   @usePost
-  def merge(a: $[IStream], b: $[IStream]): IStream = {
+  def merge(a: Lazy[IStream], b: Lazy[IStream]): IStream = {
     require(((a*) != SNil() || b.isEvaluated) && // if one of the arguments is Nil then the other is evaluated
         ((b*) != SNil() || a.isEvaluated) &&
         ((a*) != SNil() || (b*) != SNil())) // at least one of the arguments is not Nil
