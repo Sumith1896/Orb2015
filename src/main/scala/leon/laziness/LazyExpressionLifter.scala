@@ -74,8 +74,8 @@ object LazyExpressionLifter {
         (fd -> nfd)
     }.toMap
 
-    lazy val lazyFun = ProgramUtil.functionByFullName("leon.lazyeval.$.apply", prog).get
-    lazy val valueFun = ProgramUtil.functionByFullName("leon.lazyeval.$.value", prog).get
+    lazy val lazyFun = ProgramUtil.functionByFullName("leon.lazyeval.$", prog).get
+    lazy val valueFun = ProgramUtil.functionByFullName("leon.lazyeval.Lazy.value", prog).get
 
     var anchorDef: Option[FunDef] = None // a hack to find anchors
     prog.modules.foreach { md =>

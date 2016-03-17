@@ -44,7 +44,6 @@ import java.io.
  */
 object LazinessEliminationPhase extends TransformationPhase {
   val dumpInputProg = false
-  val debugLifting = false
   val dumpLiftProg = false
   val dumpProgramWithClosures = false
   val dumpTypeCorrectProg = false

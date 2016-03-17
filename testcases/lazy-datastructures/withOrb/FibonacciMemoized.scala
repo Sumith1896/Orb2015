@@ -1,17 +1,19 @@
-package orb
+package withOrb
 
-import leon.lazyeval._
-import leon.lazyeval.Mem._
-import leon.lang._
-import leon.annotation._
-import leon.instrumentation._
-import leon.invariant._
+import leon._
+import mem._
+import lang._
+import annotation._
+import instrumentation._
+import invariant._
+import Mem._
 
 object FibMem {
   sealed abstract class IList
   case class Cons(x: BigInt, tail: IList) extends IList
   case class Nil() extends IList
 
+  @memoize
   def fibRec(n: BigInt): BigInt = {
     require(n >= 0)
         if(n <= 2)
