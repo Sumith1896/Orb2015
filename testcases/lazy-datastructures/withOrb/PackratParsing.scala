@@ -106,7 +106,7 @@ object PackratParsing {
       if (i > 0)
         Parsed(i - 1) // Rule1: Prim <- Digit
       else
-        Parsed(-1)  // here, we can use -1 to convery that the suffix is empty
+        Parsed(-1)  // here, we can use -1 to convey that the suffix is empty
     } else if (char == Open() && i > 0) {
       pAdd(i - 1) match { // Rule 2: pPrim <- ( Add )
         case Parsed(rem) =>

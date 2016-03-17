@@ -1,11 +1,11 @@
 package lazybenchmarks
 
-import leon.lazyeval._
-import leon.lazyeval.$._
-import leon.lang._
-import leon.annotation._
-import leon.instrumentation._
-//import leon.invariant._
+import leon._
+import lazyeval._
+import lang._
+import annotation._
+import instrumentation._
+//import invariant._
 
 /**
  * TODO Multiple instantiations of type parameters is not supported yet,

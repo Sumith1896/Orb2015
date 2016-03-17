@@ -143,19 +143,20 @@ object BottomUpMergeSort {
         }
     }
   } ensuring (res => ssize(a) + ssize(b) == res.size &&
-       time <= ? * res.size + ?) // note: res.size >= 1 // here stack is max of a and b
+       //time <= ? * res.size + ?) // note: res.size >= 1 // here stack is max of a and b
+      time <= 67 * res.size - 47)
 
   /**
    * Converts a list of integers to a list of streams of integers
    */
-  val nilStream: IStream = SNil()
+  //val nilStream: IStream = SNil()
 
   @invisibleBody
   def IListToLList(l: IList): LList = {
     l match {
       case INil() => LNil()
       case ICons(x, xs) =>
-        LCons(SCons(x, nilStream), IListToLList(xs))
+        LCons(SCons(x, SNil()), IListToLList(xs))
     }
   } ensuring { res =>
     res.fullSize == l.size &&

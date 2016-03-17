@@ -9,11 +9,6 @@ import scala.annotation.StaticAnnotation
 
 package object mem {
 
-  /**
-   * An implementation of memoization
-   */
-  //def memoize(arg:)
-
   @library
   @inline
   implicit def toMem[T](x: T) = new Mem(x)
