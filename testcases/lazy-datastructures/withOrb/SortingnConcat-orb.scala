@@ -1,10 +1,11 @@
 package withOrb
 
-import leon.lazyeval._
-import leon.lang._
-import leon.annotation._
-import leon.instrumentation._
-import leon.invariant._
+import leon._
+import lazyeval._
+import lang._
+import annotation._
+import instrumentation._
+import invariant._
 
 object SortingnConcat {
 
@@ -17,9 +18,9 @@ object SortingnConcat {
       }
     } ensuring (_ >= 0)
   }
-  case class SCons(x: BigInt, tail: $[LList]) extends LList
+  case class SCons(x: BigInt, tail: Lazy[LList]) extends LList
   case class SNil() extends LList
-  def ssize(l: $[LList]): BigInt = (l*).size
+  def ssize(l: Lazy[LList]): BigInt = (l*).size
 
   sealed abstract class List {
     def size: BigInt = this match {
@@ -60,7 +61,7 @@ object SortingnConcat {
     }
   } ensuring(res => time <= ?)
 
-  def kthMin(l: $[LList], k: BigInt): BigInt = {
+  def kthMin(l: Lazy[LList], k: BigInt): BigInt = {
     require(k >= 1)
     l.value match {
       case SCons(x, xs) =>

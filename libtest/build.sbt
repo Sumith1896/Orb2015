@@ -1,4 +1,4 @@
-name := "LeonLibraryExection"
+name := "LazyBenchmarkExecution"
 
 version := "1.0"
 
@@ -6,5 +6,12 @@ organization := "ch.epfl.lara"
 
 scalaVersion := "2.11.7"
 
-libraryDependencies += "com.softwaremill.macmemo" %% "macros" % "0.3"
+fork in run := true
 
+unmanagedJars in Compile += file("lib/macmemo.jar")
+
+javaOptions in run ++= Seq("-Xmx5G", "-Xms3G", "-Xss500M")
+
+scalacOptions ++= Seq("-optimize")
+
+libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.11.5"

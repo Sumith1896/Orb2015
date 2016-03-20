@@ -78,7 +78,7 @@ object Knapscak {
     else {
       Cons((i,ri), bottomup(i + 1, w, items))
     }
-  } ensuring(items.size <= 10 ==> time <= ? * (w - i + 1))
+  } ensuring(_ => items.size <= 10 ==> time <= ? * (w - i + 1))
 
   /**
    * Computes the list of optimal solutions of all weights up to 'w'
@@ -86,7 +86,7 @@ object Knapscak {
   def knapSackSol(w: BigInt, items: IList) = {
     require(w >= 0 && items.size <= 10) //  the second requirement is only to keep the bounds linear for z3 to work
     bottomup(0, w, items)
-  } ensuring(time <= ? * w + ?)
+  } ensuring(_ => time <= ? * w + ?)
 
   /**
    * Lemmas of deps

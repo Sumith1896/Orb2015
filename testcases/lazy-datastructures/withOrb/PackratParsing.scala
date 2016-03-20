@@ -1,11 +1,11 @@
 package orb
 
-import leon.lazyeval._
-import leon.lazyeval.Mem._
-import leon.lang._
-import leon.annotation._
-import leon.instrumentation._
-import leon.invariant._
+import leon._
+import mem._
+import lang._
+import annotation._
+import instrumentation._
+import invariant._
 
 /**
  * The packrat parser that uses the Expressions grammar presented in Bran Ford ICFP'02 paper.
@@ -157,8 +157,8 @@ object PackratParsing {
     require(i == 0 || (i > 0 && allEval(i-1)))
     (pPrim(i), pMul(i), pAdd(i))
   } ensuring (res => {
-    val in = Mem.inState[Result]
-    val out = Mem.outState[Result]
+    val in = inState[Result]
+    val out = outState[Result]
     (if(i >0) evalMono(i-1, in, out) else true) &&
     allEval(i) &&
     time <= ?

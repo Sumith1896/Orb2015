@@ -6,6 +6,7 @@ import lang._
 import annotation._
 import instrumentation._
 import invariant._
+import stats._
 
 /**
  * TODO Multiple instantiations of type parameters is not supported yet,
@@ -199,4 +200,36 @@ object BottomUpMergeSort {
       case SNil() => BigInt(0)
     }
   } //ensuring (_ => time <= ? * (k * ssize(l)) + ? * k + ?)
+  
+  
+  @ignore
+  def main(args: Array[String]) {   
+    println("Running merge sort test...")
+    import BottomUpMergeSort._
+    import listalgorithms.MergeSort
+    val length = 3000000
+    val maxIndexValue = 100
+    val randomList = Random.shuffle((0 until length).toList)
+    val l1 = randomList.foldRight(List[BigInt]()){
+      case (i, acc) => BigInt(i) :: acc
+    }
+    val l2 = randomList.foldRight(INil(): IList){
+      case (i, acc) => ICons(BigInt(i), acc)
+    } 
+    println(s"Created inputs of size (${l1.size},${l2.size}), starting operations...")
+    val sort2 = timed{ mergeSort(l2) }{t => println(s"Lazy merge sort completed in ${t/1000.0} sec") }
+    val sort1 = timed{ MergeSort.msort((x: BigInt, y: BigInt) => x <= y)(l1) } {t => println(s"Eager merge sort completed in ${t/1000.0} sec") }    
+    // sample 10 elements from a space of [0-100]
+    val rand = Random
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    for(i <- 0 until 10) {
+      val idx = rand.nextInt(maxIndexValue)
+      val e1 = timed { sort1(idx) } { totalTime1 +=_ } 
+      val e2 = timed { kthMin(sort2, idx) }{ totalTime2 += _ }            
+      println(s"Element at index $idx - Eager: $e1 Lazy: $e1")
+      assert(e1 == e2)
+    }
+    println(s"Time-taken to pick first 10 minimum elements - Eager: ${totalTime1/1000.0}s Lazy: ${totalTime2/1000.0}s")    
+  }
 }

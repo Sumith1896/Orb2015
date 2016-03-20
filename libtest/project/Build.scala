@@ -13,27 +13,23 @@ object BuildSettings {
 object MyBuild extends Build {
   import BuildSettings._
 
-  lazy val root: Project = Project(
+  lazy val root = Project(
     "root",
     file("."),
     settings = buildSettings
-  )
-
- /* lazy val macros: Project = Project(
-    "macros",
-    file("macros"),
-    settings = buildSettings ++ Seq(
-      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
-      libraryDependencies ++= (
-        if (scalaVersion.value.startsWith("2.10")) List("org.scalamacros" %% "quasiquotes" % paradiseVersion)
-        else Nil
-      )
-    )
-  )
-
-  lazy val core: Project = Project(
-    "core",
-    file("core"),
-    settings = buildSettings
-  ) dependsOn(macros)*/
+  ) 
+  
+//  aggregate (macros, benchmarks)
+//
+//  lazy val macros = Project(
+//    "leon",
+//    file("src/main/scala/leon"),
+//    settings = buildSettings 
+//  )
+//  
+//  lazy val benchmarks = Project(
+//    "benchmark",
+//    file("src/main/scala/benchmarks"),
+//    settings = buildSettings 
+//  ) dependsOn macros
 }
