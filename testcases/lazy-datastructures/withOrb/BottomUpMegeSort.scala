@@ -203,10 +203,14 @@ object BottomUpMergeSort {
   
   
   @ignore
-  def main(args: Array[String]) {   
+  def main(args: Array[String]) {    
+    import eagerEval.MergeSort
+    import scala.util.Random
+    import scala.math.BigInt
+    import stats._
+    import collection._
+    
     println("Running merge sort test...")
-    import BottomUpMergeSort._
-    import listalgorithms.MergeSort
     val length = 3000000
     val maxIndexValue = 100
     val randomList = Random.shuffle((0 until length).toList)

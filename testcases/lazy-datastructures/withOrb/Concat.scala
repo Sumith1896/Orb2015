@@ -8,7 +8,6 @@ import annotation._
 import instrumentation._
 import collection._
 import invariant._
-import stats._
 
 object Concat {
   sealed abstract class LList[T] {
@@ -48,6 +47,7 @@ object Concat {
 
   @ignore
   def main(args: Array[String]) = {
+    import stats._
     println("Running concat test...")
     val length = 1000000
     val k = 10

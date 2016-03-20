@@ -25,7 +25,7 @@ object LazyNumericalRep {
   sealed abstract class NumStream {
     val isSpine: Boolean = this match {
       case Spine(_, _, _) => true
-      case _ => false
+      case _              => false
     }
     val isTip = !isSpine
   }
@@ -163,7 +163,7 @@ object LazyNumericalRep {
     require(zeroPrecedeLazy(xs) &&
       (xs* match {
         case Spine(h, _, _) => h != Zero() // xs doesn't start with a zero
-        case _ => false
+        case _              => false
       }))
     xs.value match {
       case Spine(head, _, rear) => // here, rear is guaranteed to be evaluated by 'zeroPrecedeLazy' invariant
@@ -205,7 +205,7 @@ object LazyNumericalRep {
     require(zeroPrecedeSuf(xs, suf) &&
       (xs* match {
         case Spine(h, _, _) => h != Zero()
-        case _ => false
+        case _              => false
       }) &&
       (suf* match {
         case Spine(Zero(), _, _) =>
@@ -493,4 +493,43 @@ object LazyNumericalRep {
       } else true) &&
       zeroPrecedeSuf(q, suf2) // property
   }.holds
+
+  @ignore
+  def main(args: Array[String]) {
+    import eagerEval.BigNums
+    import scala.util.Random
+    import scala.math.BigInt
+    import stats._
+    import collection._
+
+    println("Running Numerical Representation test...")
+    val ops = 1000000
+    // initialize to a queue with one element (required to satisfy preconditions of dequeue and front)
+    var bignum: BigNums.BigNum = BigNums.Nil()
+    var lazynum = emptyNum
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    println(s"Testing amortized emphemeral behavior on $ops operations...")
+    for (i <- 0 until ops) {
+      //println("Inc..")
+      bignum = timed { BigNums.increment(bignum) } { totalTime1 += _ }
+      lazynum = timed { incAndPay(lazynum) } { totalTime2 += _ }
+      val d1 = BigNums.firstDigit(bignum)
+      val d2 = firstDigit(lazynum)
+      assert(d1.toString == d2.toString, s"Eager head: $d1 Lazy head: $d2")
+    }
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime1 / 1000.0}s Lazy: ${totalTime2 / 1000.0}s") // this should be linear in length for both cases
+    // now, test worst-case behavior (in persitent mode if necessary)
+    val length = (1 << 22) - 1 // a number of the form: 2^{n-1}    
+    bignum = BigNums.Nil()
+    lazynum = emptyNum
+    for (i <- 0 until length) {
+      bignum = BigNums.increment(bignum)
+      lazynum = incAndPay(lazynum)
+    }
+    println(s"Number of leading ones of bignum: ${BigNums.leadingOnes(bignum)}")
+    //dequeue 1 element from both queues
+    timed { BigNums.increment(bignum) } { t => println(s"Time for one eager increment in the worst case: ${t / 1000.0}s") }
+    timed { incAndPay(lazynum) } { t => println(s"Time for one lazy increment in the worst case: ${t / 1000.0}s") }
+  }
 }

@@ -1,4 +1,4 @@
-package orb
+package withOrb
 
 import leon._
 import lazyeval._
@@ -363,4 +363,49 @@ object RealTimeDeque {
     } else true) &&
       (firstUneval(l1) withState st2) == (firstUneval(l2) withState st2) // property
   } holds
+  
+  @ignore
+  def main(args: Array[String]) {
+    import eagerEval.AmortizedQueue
+    import scala.util.Random
+    import scala.math.BigInt
+    import stats._
+    import collection._
+    
+    println("Running Deque test...")
+    val ops = 2000000
+    val rand = Random
+    // initialize to a queue with one element (required to satisfy preconditions of dequeue and front)
+    var rtd = empty[BigInt]
+    var amq = AmortizedQueue.Queue(AmortizedQueue.Nil(), AmortizedQueue.Nil())    
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    println(s"Testing amortized emphemeral behavior on $ops operations...")
+    for (i <- 0 until ops) {
+      if (!amq.isEmpty) {
+        val h1 = head(rtd)
+        val h2 = amq.head
+        assert(h1 == h2, s"Eager head: $h2 Lazy head: $h1")
+      }
+      rand.nextInt(3) match {
+        case x if x == 0 => //add to rear 
+          //println("Enqueue..")
+          rtd = timed { snoc(BigInt(i), rtd) } { totalTime1 += _ }
+          amq = timed { amq.enqueue(BigInt(i)) } { totalTime2 += _ }
+        case x if x == 1 => // remove from front
+          if (!amq.isEmpty) {
+            //if(i%100000 == 0) 
+            //println("Dequeue..")
+            rtd = timed { tail(rtd) } { totalTime1 += _ }
+            amq = timed { amq.dequeue } { totalTime2 += _ }
+          }
+        case x if x == 2 => // reverse
+          //if(i%100000 == 0) 
+          //println("reverse..")
+          rtd = timed { reverse(rtd) } { totalTime1 += _ }
+          amq = timed { amq.reverse } { totalTime2 += _ }
+      }
+    }
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime2/1000.0}s Lazy: ${totalTime1/1000.0}s")   
+  }
 }

@@ -11,3 +11,5 @@ fork in run := true
 javaOptions in run ++= Seq("-Xmx5G", "-Xms3G", "-Xss500M")
 
 scalacOptions ++= Seq("-optimize")
+
+unmanagedSourceDirectories in Compile ++= Seq("withOrb", "eager").map(dir => baseDirectory.value / dir)

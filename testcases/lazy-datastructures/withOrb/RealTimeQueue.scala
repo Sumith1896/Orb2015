@@ -56,7 +56,7 @@ object RealTimeQueue {
         SCons[T](x, rot)
     }
   } ensuring (res => res.size == (f*).size + r.size + (a*).size && res.isCons &&
-                     time <= ?)
+    time <= ?)
 
   /**
    * Returns the first element of the stream that is not evaluated.
@@ -120,4 +120,57 @@ object RealTimeQueue {
         createQ(nf, q.r, q.s)
     }
   } ensuring (res => res.valid && time <= ?)
+
+  @ignore
+  def main(args: Array[String]) {
+    import eagerEval.AmortizedQueue
+    import scala.util.Random
+    import scala.math.BigInt
+    import stats._
+    import collection._        
+    
+    println("Running RTQ test...")
+    val ops = 10000000
+    val rand = Random
+    // initialize to a queue with one element (required to satisfy preconditions of dequeue and front)
+    var rtq = empty[BigInt]
+    var amq = AmortizedQueue.Queue(AmortizedQueue.Nil(), AmortizedQueue.Nil())
+    var totalTime1 = 0L
+    var totalTime2 = 0L
+    println(s"Testing amortized emphemeral behavior on $ops operations...")
+    for (i <- 0 until ops) {
+      if (!amq.isEmpty) {
+        val h1 = head(rtq)
+        val h2 = amq.head
+        assert(h1 == h2, s"Eager head: $h2 Lazy head: $h1")
+      }
+      rand.nextInt(2) match {
+        case x if x == 0 => //enqueue
+          //          /if(i%100000 == 0) println("Enqueue..")         
+          rtq = timed { enqueue(BigInt(i), rtq) } { totalTime1 += _ }
+          amq = timed { amq.enqueue(BigInt(i)) } { totalTime2 += _ }
+        case x if x == 1 => //dequeue
+          if (!amq.isEmpty) {
+            //if(i%100000 == 0) println("Dequeue..")         
+            rtq = timed { dequeue(rtq) } { totalTime1 += _ }
+            amq = timed { amq.dequeue } { totalTime2 += _ }
+          }
+      }
+    }
+    println(s"Ephemeral Amortized Time - Eager: ${totalTime2 / 1000.0}s Lazy: ${totalTime1 / 1000.0}s") // this should be linear in length for both cases
+    // now, test worst-case behavior (in persitent mode if necessary)
+    val length = (1 << 22) - 2 // a number of the form: 2^{n-2}
+    // reset the queues
+    rtq = empty[BigInt]
+    amq = AmortizedQueue.Queue(AmortizedQueue.Nil(), AmortizedQueue.Nil())
+    // enqueue length elements
+    for (i <- 0 until length) {
+      rtq = enqueue(BigInt(0), rtq)
+      amq = amq.enqueue(BigInt(0))
+    }
+    println(s"Amortized queue size: ${amq.front.size}, ${amq.rear.size}")
+    //dequeue 1 element from both queues
+    timed { amq.dequeue } { t => println(s"Time to dequeue one element from Amortized Queue in the worst case: ${t / 1000.0}s") }
+    timed { dequeue(rtq) } { t => println(s"Time to dequeue one element from RTQ in the worst case: ${t / 1000.0}s") }
+  }
 }
