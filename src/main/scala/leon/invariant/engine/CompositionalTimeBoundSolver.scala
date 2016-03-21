@@ -45,7 +45,7 @@ class CompositionalTimeBoundSolver(ctx: InferenceContext, prog: Program, rootFd:
 
     val origProg = prog
     // add only rec templates for all functions
-    val funToRecTmpl = origProg.definedFunctions.collect {
+    val funToRecTmpl = userLevelFunctions(origProg).collect {
       case fd if fd.hasTemplate && fd == rootFd =>
         fd -> recTmpl
       case fd if fd.hasTemplate =>
@@ -54,7 +54,7 @@ class CompositionalTimeBoundSolver(ctx: InferenceContext, prog: Program, rootFd:
     val recProg = assignTemplateAndCojoinPost(funToRecTmpl, origProg)
 
     // add only tpr template for all functions
-    val funToNonRecTmpl = origProg.definedFunctions.collect {
+    val funToNonRecTmpl = userLevelFunctions(origProg).collect {
       case fd if fd.hasTemplate && fd == rootFd =>
         fd -> tprTmpl
       case fd if fd.hasTemplate =>
@@ -73,7 +73,7 @@ class CompositionalTimeBoundSolver(ctx: InferenceContext, prog: Program, rootFd:
       case (Some(InferResult(true, Some(recModel), _)),
         Some(InferResult(true, Some(tprModel), _))) =>
         // create a new program by omitting the templates of the root function
-        val funToTmpl = origProg.definedFunctions.collect {
+        val funToTmpl = userLevelFunctions(origProg).collect {
           case fd if fd.hasTemplate && fd != rootFd =>
             (fd -> fd.getTemplate)
         }.toMap

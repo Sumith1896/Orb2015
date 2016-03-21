@@ -117,12 +117,14 @@ object WeightedSched {
     //test2()
   }
 
+  @ignore
   def test1() {
     jobs = Array((0, 0, 0), (1, 2, 5), (3, 4, 2), (3, 8, 5), (6, 7, 10), (8, 11, 11), (10, 13, 20))
     p = Array(0 /* anything */ , 0, 1, 1, 2, 4, 4)
     println("Schedule for 5 jobs of set 1: " + schedBU(6))
   }
 
+  @ignore
   def test2() {
     jobs = Array((0, 0, 0), (1, 3, 5), (3, 4, 2), (3, 8, 5), (6, 7, 10), (8, 11, 11), (10, 13, 20))
     p = Array(0 /* anything */ , 0, 0, 0, 2, 4, 4)

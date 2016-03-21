@@ -1,5 +1,5 @@
-import leon.lazyeval._
-import leon.lazyeval.Mem._
+import leon._
+import leon.mem._
 import leon.lang._
 import leon.annotation._
 import leon.instrumentation._
@@ -85,8 +85,8 @@ object WeightedSched {
     require(depsEval(jobIndex))
     sched(jobIndex)
   } ensuring (res => {
-    val in = Mem.inState[BigInt]
-    val out = Mem.outState[BigInt]
+    val in = inState[BigInt]
+    val out = outState[BigInt]
     (jobIndex == 0 || evalMono(jobIndex-1, in, out)) &&
       time <= 150
   })

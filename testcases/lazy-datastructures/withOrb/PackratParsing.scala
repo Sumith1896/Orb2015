@@ -185,17 +185,19 @@ object PackratParsing {
   @ignore
   def main(args: Array[String]) {
     // note: we can run only one test in each run as the cache needs to be cleared between the tests,
-    // which is not currently supported by the api's (note: we basically have mutable field as a part of the method)
+    // which is not currently supported by the api's
     test1()
     //test2()
   }
 
+  @ignore
   def test1() {
     // list of tokens to parse. The list is reversed i.e, the first char is at the last index, the last char is at the first index.
     string = Array(Plus(), Digit(), Times(), Close(), Digit(), Plus(), Digit(), Open()) // d *  ( d + d ) +
     println("Parsing Expression 1: " + parse(string.length - 1))
   }
 
+  @ignore
   def test2() {
     string = Array(Times(), Digit(), Open()) // ( d *
     println("Parsing Expression 2: " + parse(string.length - 1))

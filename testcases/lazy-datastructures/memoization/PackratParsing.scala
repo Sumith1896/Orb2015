@@ -1,5 +1,5 @@
-import leon.lazyeval._
-import leon.lazyeval.Mem._
+import leon._
+import leon.mem._
 import leon.lang._
 import leon.annotation._
 import leon.instrumentation._
@@ -32,7 +32,6 @@ object PackratParsing {
   def lookup(i: BigInt): Terminal = {
     string(i.toInt)
   } ensuring(_ => time <= 1)
-
 
   sealed abstract class Result {
     /**
@@ -152,8 +151,8 @@ object PackratParsing {
     require(i == 0 || (i > 0 && allEval(i-1)))
     (pPrim(i), pMul(i), pAdd(i))
   } ensuring (res => {
-    val in = Mem.inState[Result]
-    val out = Mem.outState[Result]
+    val in = inState[Result]
+    val out = outState[Result]
     (if(i >0) evalMono(i-1, in, out) else true) &&
     allEval(i) &&
     time <= 200

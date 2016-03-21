@@ -58,16 +58,11 @@ object ProgramSimplifier {
   }
 
   def createNewFunDefs(program: Program): Map[FunDef, FunDef] = {
-    val allFuncs = functionsWOFields(program.definedFunctions)
-
-    allFuncs.foldLeft(Map[FunDef, FunDef]()) {
-      case (accMap, fd) if fd.isTheoryOperation =>
-        accMap + (fd -> fd)
+    userLevelFunctions(program).foldLeft(Map[FunDef, FunDef]()) {
       case (accMap, fd) => {
-        //here we need not augment the return types
         val freshId = FreshIdentifier(fd.id.name, fd.returnType)
         val newfd = new FunDef(freshId, fd.tparams, fd.params, fd.returnType)
-        accMap.updated(fd, newfd)
+        accMap + (fd -> newfd)
       }
     }
   }

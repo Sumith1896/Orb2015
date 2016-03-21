@@ -145,19 +145,19 @@ object BottomUpMergeSort {
     }
   } ensuring (res => ssize(a) + ssize(b) == res.size &&
        //time <= ? * res.size + ?) // note: res.size >= 1 // here stack is max of a and b
-      time <= 67 * res.size - 47)
+      time <= 67 * res.size - 47) // Orb cannot infer this due to issues with CVC4 set solving !
 
   /**
    * Converts a list of integers to a list of streams of integers
    */
-  //val nilStream: IStream = SNil()
+  val nilStream: IStream = SNil()
 
   @invisibleBody
   def IListToLList(l: IList): LList = {
     l match {
       case INil() => LNil()
       case ICons(x, xs) =>
-        LCons(SCons(x, SNil()), IListToLList(xs))
+        LCons(SCons(x, nilStream), IListToLList(xs))
     }
   } ensuring { res =>
     res.fullSize == l.size &&
@@ -200,16 +200,15 @@ object BottomUpMergeSort {
       case SNil() => BigInt(0)
     }
   } //ensuring (_ => time <= ? * (k * ssize(l)) + ? * k + ?)
-  
-  
+
   @ignore
-  def main(args: Array[String]) {    
-    import eagerEval.MergeSort
+  def main(args: Array[String]) {
+    //import eagerEval.MergeSort
     import scala.util.Random
     import scala.math.BigInt
     import stats._
     import collection._
-    
+
     println("Running merge sort test...")
     val length = 3000000
     val maxIndexValue = 100
@@ -219,21 +218,21 @@ object BottomUpMergeSort {
     }
     val l2 = randomList.foldRight(INil(): IList){
       case (i, acc) => ICons(BigInt(i), acc)
-    } 
+    }
     println(s"Created inputs of size (${l1.size},${l2.size}), starting operations...")
     val sort2 = timed{ mergeSort(l2) }{t => println(s"Lazy merge sort completed in ${t/1000.0} sec") }
-    val sort1 = timed{ MergeSort.msort((x: BigInt, y: BigInt) => x <= y)(l1) } {t => println(s"Eager merge sort completed in ${t/1000.0} sec") }    
+    //val sort1 = timed{ MergeSort.msort((x: BigInt, y: BigInt) => x <= y)(l1) } {t => println(s"Eager merge sort completed in ${t/1000.0} sec") }
     // sample 10 elements from a space of [0-100]
     val rand = Random
     var totalTime1 = 0L
     var totalTime2 = 0L
     for(i <- 0 until 10) {
       val idx = rand.nextInt(maxIndexValue)
-      val e1 = timed { sort1(idx) } { totalTime1 +=_ } 
-      val e2 = timed { kthMin(sort2, idx) }{ totalTime2 += _ }            
-      println(s"Element at index $idx - Eager: $e1 Lazy: $e1")
-      assert(e1 == e2)
+      //val e1 = timed { sort1(idx) } { totalTime1 +=_ }
+      val e2 = timed { kthMin(sort2, idx) }{ totalTime2 += _ }
+      //println(s"Element at index $idx - Eager: $e1 Lazy: $e2")
+      //assert(e1 == e2)
     }
-    println(s"Time-taken to pick first 10 minimum elements - Eager: ${totalTime1/1000.0}s Lazy: ${totalTime2/1000.0}s")    
+    println(s"Time-taken to pick first 10 minimum elements - Eager: ${totalTime1/1000.0}s Lazy: ${totalTime2/1000.0}s")
   }
 }
