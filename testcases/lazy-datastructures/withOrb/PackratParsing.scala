@@ -55,47 +55,53 @@ object PackratParsing {
   @memoize
   @invstate
   def pAdd(i: BigInt): Result = {
-    require(depsEval(i) &&
-      pMul(i).isCached && pPrim(i).isCached &&
-      resEval(i, pMul(i))) // lemma inst
+    require {
+      if (depsEval(i) && pMul(i).isCached && pPrim(i).isCached)
+        resEval(i, pMul(i)) // lemma inst
+      else false
+    }
     // Rule 1: Add <- Mul + Add
-    pMul(i) match {
+    val mulRes = pMul(i)
+    mulRes match {
       case Parsed(j) =>
         if (j > 0 && lookup(j) == Plus()) {
           pAdd(j - 1) match {
             case Parsed(rem) =>
               Parsed(rem)
             case _ =>
-              pMul(i) // Rule2: Add <- Mul
+              mulRes // Rule2: Add <- Mul
           }
-        } else pMul(i)
+        } else mulRes
       case _ =>
-        pMul(i)
+        mulRes
     }
-  } ensuring (res => res.smallerIndex(i) && time <= ?)
+  } ensuring (res => res.smallerIndex(i) && time <= ?) // time <= 26
 
   @invisibleBody
   @memoize
   @invstate
   def pMul(i: BigInt): Result = {
-    require(depsEval(i) && pPrim(i).isCached &&
-      resEval(i, pPrim(i)) // lemma inst
-      )
+    require{
+      if (depsEval(i) && pPrim(i).isCached)
+        resEval(i, pPrim(i)) // lemma inst
+      else false
+    }
     // Rule 1: Mul <- Prim *  Mul
-    pPrim(i) match {
+    val primRes = pPrim(i)
+    primRes match {
       case Parsed(j) =>
         if (j > 0 && lookup(j) == Times()) {
           pMul(j - 1) match {
             case Parsed(rem) =>
               Parsed(rem)
             case _ =>
-              pPrim(i) // Rule2: Mul <- Prim
+              primRes // Rule2: Mul <- Prim
           }
-        } else pPrim(i)
+        } else primRes
       case _ =>
-        pPrim(i)
+        primRes
     }
-  } ensuring (res => res.smallerIndex(i) && time <= ?)
+  } ensuring (res => res.smallerIndex(i) && time <= ?) // time <= 26
 
   @invisibleBody
   @memoize
@@ -117,7 +123,7 @@ object PackratParsing {
           NoParse()
       }
     } else NoParse()
-  } ensuring (res => res.smallerIndex(i) && time <= ?)
+  } ensuring (res => res.smallerIndex(i) && time <= ?) // time <= 28
 
   //@inline
   def depsEval(i: BigInt) = i == 0 || (i > 0 && allEval(i - 1))
@@ -154,7 +160,7 @@ object PackratParsing {
     })
   }
 
-  @invisibleBody
+  /*@invisibleBody
   def invoke(i: BigInt): (Result, Result, Result) = {
     require(i == 0 || (i > 0 && allEval(i - 1)))
     (pPrim(i), pMul(i), pAdd(i))
@@ -164,7 +170,41 @@ object PackratParsing {
     (if (i > 0) evalMono(i - 1, in, out) else true) &&
       allEval(i) &&
       time <= ?
-  })
+  })*/
+
+  def invokePrim(i: BigInt): Result = {
+    require(depsEval(i))
+    pPrim(i)
+  } ensuring { res =>
+    val in = inState[Result]
+    val out = outState[Result]
+    (if (i > 0) evalMono(i - 1, in, out) else true)
+  }
+
+  def invokeMul(i: BigInt): Result = {
+    require(depsEval(i))
+    invokePrim(i) match {
+      case _ => pMul(i)
+    }
+  } ensuring { res =>
+    val in = inState[Result]
+    val out = outState[Result]
+    (if (i > 0) evalMono(i - 1, in, out) else true)
+  }
+
+  @invisibleBody
+  def invoke(i: BigInt): Result = {
+    require(depsEval(i))
+    invokeMul(i) match {
+      case _ => pAdd(i)
+    }
+  } ensuring { res =>
+    val in = inState[Result]
+    val out = outState[Result]
+    (if (i > 0) evalMono(i - 1, in, out) else true) &&
+      allEval(i) &&
+      time <= ? // 189
+  }
 
   /**
    * Parsing a string of length 'n+1'.
@@ -174,13 +214,15 @@ object PackratParsing {
   @invisibleBody
   def parse(n: BigInt): Result = {
     require(n >= 0)
-    if (n == 0) invoke(n)._3
+    if (n == 0) invoke(n)
     else {
-      val tailres = parse(n - 1) // we parse the prefixes ending at 0, 1, 2, 3, ..., n
-      invoke(n)._3
+      parse(n - 1) match { // we parse the prefixes ending at 0, 1, 2, 3, ..., n
+        case _ =>
+          invoke(n)
+      }
     }
   } ensuring (_ => allEval(n) &&
-    time <= ? * n + ?)
+    time <= ? * n + ?) // 198 * n + 192
 
   @ignore
   def main(args: Array[String]) {
