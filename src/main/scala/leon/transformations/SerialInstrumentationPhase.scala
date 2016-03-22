@@ -80,7 +80,7 @@ class SerialInstrumenter(program: Program,
       //create new functions. Augment the return type of a function iff the postcondition uses
       //the instrumentation variable or if the function is transitively called from such a function
       var funMap = Map[FunDef, FunDef]()
-      (userLevelFunctions(program).toSet ++ instFuncs).foreach { fd =>
+      (userLevelFunctions(program) ++ instFuncs).distinct.foreach { fd =>
         if (instFuncs.contains(fd)) {
           val newRetType = TupleType(fd.returnType +: instTypes(fd))
           // let the names of the function encode the kind of instrumentations performed

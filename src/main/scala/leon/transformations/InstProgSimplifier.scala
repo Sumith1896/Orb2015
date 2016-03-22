@@ -27,7 +27,7 @@ object ProgramSimplifier {
   val debugSimplify = false
 
   def apply(program: Program): Program = {
-    val funMap = (userLevelFunctions(program).toSet ++ program.definedFunctions.filter(InstUtil.isInstrumented).toSet).foldLeft(Map[FunDef, FunDef]()) {
+    val funMap = ((userLevelFunctions(program) ++ program.definedFunctions.filter(InstUtil.isInstrumented)).distinct).foldLeft(Map[FunDef, FunDef]()) {
       case (accMap, fd) => {
         val freshId = FreshIdentifier(fd.id.name, fd.returnType)
         val newfd = new FunDef(freshId, fd.tparams, fd.params, fd.returnType)

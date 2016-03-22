@@ -173,7 +173,6 @@ object LazyExpressionLifter {
           if (fd.hasPostcondition)
             nfd.postcondition = Some(rec(true)(fd.postcondition.get))
           nfd.body = Some(rec(false)(fd.body.get))
-          //nfd.fullBody = rec(false)(fd.fullBody)
         case fd =>
       }
     }
