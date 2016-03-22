@@ -236,7 +236,7 @@ object ProgramUtil {
    */
   def userLevelFunctions(program: Program): Seq[FunDef] = {
     program.units.flatMap { u =>
-      u.definedFunctions.filter(fd => !fd.isTheoryOperation && (u.isMainUnit || !fd.isLibrary || !fd.isInvariant))
+      u.definedFunctions.filter(fd => !fd.isTheoryOperation && (u.isMainUnit || !(fd.isLibrary || fd.isInvariant)))
     }
   }
 

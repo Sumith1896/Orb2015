@@ -26,8 +26,14 @@ import invariant.util.LetTupleSimplification._
 object ProgramSimplifier {
   val debugSimplify = false
 
-  def mapProgram(funMap: Map[FunDef, FunDef]): Map[FunDef, FunDef] = {
-
+  def apply(program: Program): Program = {
+    val funMap = (userLevelFunctions(program).toSet ++ program.definedFunctions.filter(InstUtil.isInstrumented).toSet).foldLeft(Map[FunDef, FunDef]()) {
+      case (accMap, fd) => {
+        val freshId = FreshIdentifier(fd.id.name, fd.returnType)
+        val newfd = new FunDef(freshId, fd.tparams, fd.params, fd.returnType)
+        accMap + (fd -> newfd)
+      }
+    }
     def mapExpr(ine: Expr, fd: FunDef): Expr = {
       val replaced = simplePostTransform((e: Expr) => e match {
         case FunctionInvocation(tfd, args) if funMap.contains(tfd.fd) =>
@@ -54,34 +60,13 @@ object ProgramSimplifier {
       //copy annotations
       from.flags.foreach(to.addFlag(_))
     }
-    funMap
-  }
-
-  def createNewFunDefs(program: Program): Map[FunDef, FunDef] = {
-    userLevelFunctions(program).foldLeft(Map[FunDef, FunDef]()) {
-      case (accMap, fd) => {
-        val freshId = FreshIdentifier(fd.id.name, fd.returnType)
-        val newfd = new FunDef(freshId, fd.tparams, fd.params, fd.returnType)
-        accMap + (fd -> newfd)
-      }
-    }
-  }
-
-  def createNewProg(mappedFuncs: Map[FunDef, FunDef], prog: Program): Program = {
-    val newprog = copyProgram(prog, (defs: Seq[Definition]) => defs.map {
-      case fd: FunDef if mappedFuncs.contains(fd) =>
-        mappedFuncs(fd)
-      case d => d
+    val newprog = copyProgram(program, (defs: Seq[Definition]) => defs.map {
+      case fd: FunDef if funMap.contains(fd) => funMap(fd)
+      case d                                 => d
     })
 
     if (debugSimplify)
       println("After Simplifications: \n" + ScalaPrinter.apply(newprog))
     newprog
-  }
-
-  def apply(program: Program): Program = {
-    val newFuncs = createNewFunDefs(program)
-    val mappedFuncs = mapProgram(newFuncs)
-    createNewProg(mappedFuncs, program)
   }
 }

@@ -50,9 +50,11 @@ object PackratParsing {
   @memoize
   @invstate
   def pAdd(i: BigInt): Result = {
-    require(depsEval(i) &&
-      pMul(i).isCached && pPrim(i).isCached &&
-      resEval(i, pMul(i))) // lemma inst
+    require{
+      if (depsEval(i) && pMul(i).isCached && pPrim(i).isCached)
+        resEval(i, pMul(i))
+      else false
+    } // lemma inst
 
     // Rule 1: Add <- Mul + Add
     pMul(i) match {
@@ -73,9 +75,11 @@ object PackratParsing {
   @memoize
   @invstate
   def pMul(i: BigInt): Result = {
-    require(depsEval(i) && pPrim(i).isCached &&
-      resEval(i, pPrim(i)) // lemma inst
-      )
+    require {
+      if (depsEval(i) && pPrim(i).isCached)
+        resEval(i, pPrim(i)) // lemma inst
+      else false
+    }
     // Rule 1: Mul <- Prim *  Mul
     pPrim(i) match {
       case Parsed(j) =>
@@ -112,7 +116,7 @@ object PackratParsing {
     } else NoParse()
   } ensuring (res => res.smallerIndex(i) && time <= 30)
 
-  @inline
+  //@inline
   def depsEval(i: BigInt) = i == 0 || (i > 0 && allEval(i-1))
 
   def allEval(i: BigInt): Boolean = {
@@ -137,7 +141,7 @@ object PackratParsing {
   /**
    * Instantiates the lemma `depsLem` on the result index (if any)
    */
-  @inline
+  //@inline
   def resEval(i: BigInt, res: Result) = {
     (res match {
       case Parsed(j) =>
@@ -145,7 +149,7 @@ object PackratParsing {
         else true
       case _ => true
     })
-  }
+  } holds
 
   def invoke(i: BigInt): (Result, Result, Result) = {
     require(i == 0 || (i > 0 && allEval(i-1)))
