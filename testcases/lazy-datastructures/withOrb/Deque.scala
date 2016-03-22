@@ -58,6 +58,19 @@ object RealTimeDeque {
   }
 
   @invstate
+  def takeLazy[T](n: BigInt, l: Lazy[Stream[T]]): Stream[T] = {
+    require(isConcrete(l) && n >= 1 && ssize(l) >= n)
+    l.value match {
+      case SCons(x, tail) =>
+        if (n == 1)
+          SCons[T](x, SNil[T]())
+        else
+          SCons[T](x, $(takeLazy(n - 1, tail)))
+    }
+  } ensuring(res => res.size == n && res.isCons &&
+      time <= ?)
+
+  @invstate
   def revAppend[T](l1: Lazy[Stream[T]], l2: Lazy[Stream[T]]): Lazy[Stream[T]] = {
     require(isConcrete(l1) && isConcrete(l2))
     l1.value match {
@@ -103,19 +116,6 @@ object RealTimeDeque {
   } ensuring(res => isConcrete(res) &&
       ssize(res) == n &&
       time <= ? * n + ?)
-
-  @invstate
-  def takeLazy[T](n: BigInt, l: Lazy[Stream[T]]): Stream[T] = {
-    require(isConcrete(l) && n >= 1 && ssize(l) >= n)
-    l.value match {
-      case SCons(x, tail) =>
-        if (n == 1)
-          SCons[T](x, SNil[T]())
-        else
-          SCons[T](x, $(takeLazy(n - 1, tail)))
-    }
-  } ensuring(res => res.size == n && res.isCons &&
-      time <= ?)
 
   @invstate
   def rotateRev[T](r: Lazy[Stream[T]], f: Lazy[Stream[T]], a: Lazy[Stream[T]]): Stream[T] = {

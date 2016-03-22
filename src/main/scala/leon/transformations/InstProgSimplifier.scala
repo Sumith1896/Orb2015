@@ -26,8 +26,8 @@ import invariant.util.LetTupleSimplification._
 object ProgramSimplifier {
   val debugSimplify = false
 
-  def apply(program: Program): Program = {
-    val funMap = ((userLevelFunctions(program) ++ program.definedFunctions.filter(InstUtil.isInstrumented)).distinct).foldLeft(Map[FunDef, FunDef]()) {
+  def apply(program: Program, instFuncs: Seq[FunDef]): Program = {
+    val funMap = ((userLevelFunctions(program) ++ instFuncs).distinct).foldLeft(Map[FunDef, FunDef]()) {
       case (accMap, fd) => {
         val freshId = FreshIdentifier(fd.id.name, fd.returnType)
         val newfd = new FunDef(freshId, fd.tparams, fd.params, fd.returnType)

@@ -184,7 +184,7 @@ class SerialInstrumenter(program: Program,
       if (debugInstrumentation)
         println("After Instrumentation: \n" + ScalaPrinter.apply(newprog))
 
-      ProgramSimplifier(newprog)
+      ProgramSimplifier(newprog, instFuncs.toSeq)
     }
   }
 }
