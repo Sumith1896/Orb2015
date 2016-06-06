@@ -36,7 +36,7 @@ object InstrumentationPhase extends TransformationPhase {
           Depth -> new DepthInstrumenter(program, si),
           Rec -> new RecursionCountInstrumenter(program, si),
           Stack -> new StackSpaceInstrumenter(program, si),
-          TPR -> new TPRInstrumenter(program, si).
+          TPR -> new TPRInstrumenter(program, si),
           Alloc -> new AllocInstrumenter(program, si))
     val si = new SerialInstrumenter(program, instrumenterFactory)
     val instprog = si.apply
